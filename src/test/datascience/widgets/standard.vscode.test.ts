@@ -45,6 +45,15 @@ suite('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
         'notebooks',
         'standard_widgets.ipynb'
     );
+    const ipyaladinNbPath = path.join(
+        EXTENSION_ROOT_DIR_FOR_TESTS,
+        'src',
+        'test',
+        'datascience',
+        'widgets',
+        'notebooks',
+        'ipyaladin.ipynb'
+    );
 
     this.timeout(120_000);
     suiteSetup(async function () {
@@ -129,6 +138,22 @@ suite('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
             },
             WidgetRenderingTimeoutForTests,
             'Checkbox not rendered'
+        );
+    });
+    test('ipaladin Widget', async () => {
+        const comms = await initializeNotebook({ templateFile: ipyaladinNbPath });
+        // Confirm we have execution order and output.
+        const cell = vscodeNotebook.activeNotebookEditor?.document.cellAt(2)!;
+        await executionCell(cell, comms);
+
+        await waitForCondition(
+            async () => {
+                const innerHTML = await comms.queryHtml('.aladin-gotoBox .aladin-target-form', cell.outputs[0].id);
+                assert.include(innerHTML, 'Go to');
+                return true;
+            },
+            WidgetRenderingTimeoutForTests,
+            'Aladin Widget not rendered'
         );
     });
     test.skip('Widget renders after executing a notebook which was saved after previous execution', async () => {
