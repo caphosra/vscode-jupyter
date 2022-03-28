@@ -9,7 +9,6 @@ import { KernelMessagingApi, PostOffice } from '../../react-common/postOffice';
 import { WidgetManager } from '../common/manager';
 import { ScriptManager } from '../common/scriptManager';
 import { OutputItem } from 'vscode-notebook-renderer';
-import { traceError } from '../../../platform/common/logger';
 
 class WidgetManagerComponent {
     private readonly widgetManager: WidgetManager;
@@ -46,16 +45,16 @@ class WidgetManagerComponent {
         timedout?: boolean;
         isOnline: boolean;
     }) {
-        traceError(`Failed to to Widget load class with error in new code`);
-        traceError(`Failed to to Widget load class with error in new code`);
+        console.error(`Failed to to Widget load class with error in new code`);
+        console.error(`Failed to to Widget load class with error in new code`);
         try {
-            traceError(`Failed to to Widget load class with error ${data.moduleName}${data.className}`, data.error);
-            traceError(
+            console.error(`Failed to to Widget load class with error ${data.moduleName}${data.className}`, data.error);
+            console.error(
                 `Failed to to Widget load class with error ${data.moduleName}${data.className}`,
                 JSON.stringify(data)
             );
         } catch (ex) {
-            traceError(
+            console.error(
                 `Failed to to Widget load class & failed to log the error ${data.moduleName}${data.className}`,
                 ex
             );
