@@ -56,7 +56,7 @@ suite.only('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
     );
 
     this.timeout(120_000);
-    let previousWidgetScriptSourcesSettingValue: string[] | undefined = undefined
+    let previousWidgetScriptSourcesSettingValue: string[] | undefined = undefined;
     const widgetScriptSourcesValue = ['jsdelivr.com', 'unpkg.com'];
     suiteSetup(async function () {
         traceInfo('Suite Setup VS Code Notebook - Execution');
@@ -64,7 +64,10 @@ suite.only('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
         api = await initialize();
         const config = workspace.getConfiguration('jupyter', undefined);
         previousWidgetScriptSourcesSettingValue = config.get('widgetScriptSources') as string[];
-        if (!Array.isArray(previousWidgetScriptSourcesSettingValue) || previousWidgetScriptSourcesSettingValue.join('') !== widgetScriptSourcesValue.join('')){
+        if (
+            !Array.isArray(previousWidgetScriptSourcesSettingValue) ||
+            previousWidgetScriptSourcesSettingValue.join('') !== widgetScriptSourcesValue.join('')
+        ) {
             await config.update('widgetScriptSources', widgetScriptSourcesValue, ConfigurationTarget.Global);
         }
         await workAroundVSCodeNotebookStartPages();
@@ -93,8 +96,15 @@ suite.only('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
     });
     suiteTeardown(async () => {
         const config = workspace.getConfiguration('jupyter', undefined);
-        if (!Array.isArray(previousWidgetScriptSourcesSettingValue) || previousWidgetScriptSourcesSettingValue.join('') !== widgetScriptSourcesValue.join('')){
-            await config.update('widgetScriptSources', previousWidgetScriptSourcesSettingValue, ConfigurationTarget.Global);
+        if (
+            !Array.isArray(previousWidgetScriptSourcesSettingValue) ||
+            previousWidgetScriptSourcesSettingValue.join('') !== widgetScriptSourcesValue.join('')
+        ) {
+            await config.update(
+                'widgetScriptSources',
+                previousWidgetScriptSourcesSettingValue,
+                ConfigurationTarget.Global
+            );
         }
         await closeNotebooksAndCleanUpAfterTests(disposables);
     });
