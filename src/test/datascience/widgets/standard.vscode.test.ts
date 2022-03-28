@@ -7,7 +7,7 @@ import { assert } from 'chai';
 /* eslint-disable @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires */
 import * as path from 'path';
 import * as sinon from 'sinon';
-import { commands, NotebookCell, Uri } from 'vscode';
+import { commands, ConfigurationTarget, NotebookCell, Uri, workspace } from 'vscode';
 import { IVSCodeNotebook } from '../../../platform/common/application/types';
 import { traceInfo } from '../../../platform/common/logger';
 import { IDisposable } from '../../../platform/common/types';
@@ -29,6 +29,7 @@ import {
 } from '../notebook/helper';
 import { initializeWidgetComms, Utils } from './commUtils';
 import { WidgetRenderingTimeoutForTests } from './constants';
+import { IS_CI_SERVER } from '../../ciConstants';
 
 /* eslint-disable @typescript-eslint/no-explicit-any, no-invalid-this */
 suite.only('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
@@ -60,6 +61,11 @@ suite.only('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
         traceInfo('Suite Setup VS Code Notebook - Execution');
         this.timeout(120_000);
         api = await initialize();
+        if (IS_CI_SERVER) {
+            await workspace
+                .getConfiguration('jupyter', undefined)
+                .update('widgetScriptSources', ['jsdelivr.com', 'unpkg.com'], ConfigurationTarget.Global);
+        }
         await workAroundVSCodeNotebookStartPages();
         await startJupyterServer();
         await prewarmNotebooks();
