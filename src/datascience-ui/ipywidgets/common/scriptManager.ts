@@ -161,9 +161,6 @@ export class ScriptManager extends EventEmitter {
                                 moduleVersion: info.moduleVersion
                             })
                     );
-                    console.log(`Widget Script not loaded from Extension for ${moduleName}, ${moduleVersion}`);
-                } else {
-                    console.log(`Widget Script successfully loaded from Extension for ${moduleName}, ${moduleVersion}`);
                 }
             })
             .catch((ex) =>
@@ -236,7 +233,6 @@ export class ScriptManager extends EventEmitter {
         error: any,
         timedout: boolean = false
     ) {
-        console.error(`handleLoadError`, error);
         const isOnline = await isonline({ timeout: 1000 });
         this.emit('onWidgetLoadError', { className, moduleName, moduleVersion, error, timedout, isOnline });
     }
