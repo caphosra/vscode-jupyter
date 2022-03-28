@@ -31,7 +31,7 @@ import { initializeWidgetComms, Utils } from './commUtils';
 import { WidgetRenderingTimeoutForTests } from './constants';
 
 /* eslint-disable @typescript-eslint/no-explicit-any, no-invalid-this */
-suite('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
+suite.only('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
     let api: IExtensionTestApi;
     const disposables: IDisposable[] = [];
     let vscodeNotebook: IVSCodeNotebook;
@@ -143,17 +143,18 @@ suite('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
     test('ipaladin Widget', async () => {
         const comms = await initializeNotebook({ templateFile: ipyaladinNbPath });
         // Confirm we have execution order and output.
-        const cell = vscodeNotebook.activeNotebookEditor?.document.cellAt(2)!;
+        const cell = vscodeNotebook.activeNotebookEditor?.document.cellAt(1)!;
         await executionCell(cell, comms);
 
+        let lastInnerHtml = '';
         await waitForCondition(
             async () => {
-                const innerHTML = await comms.queryHtml('.aladin-gotoBox .aladin-target-form', cell.outputs[0].id);
-                assert.include(innerHTML, 'Go to');
+                lastInnerHtml = await comms.queryHtml('.aladin-gotoBox .aladin-target-form', cell.outputs[0].id);
+                assert.include(lastInnerHtml, 'Go to');
                 return true;
             },
             WidgetRenderingTimeoutForTests,
-            'Aladin Widget not rendered'
+            () => `Aladin Widget not rendered, inner HTML = "${lastInnerHtml}".`
         );
     });
     test.skip('Widget renders after executing a notebook which was saved after previous execution', async () => {
