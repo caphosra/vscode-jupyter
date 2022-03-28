@@ -163,7 +163,7 @@ suite.only('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
             'Checkbox not rendered'
         );
     });
-    test('ipaladin Widget', async () => {
+    test.only('ipaladin Widget', async () => {
         const comms = await initializeNotebook({ templateFile: ipyaladinNbPath });
         // Confirm we have execution order and output.
         const cell = vscodeNotebook.activeNotebookEditor?.document.cellAt(1)!;
