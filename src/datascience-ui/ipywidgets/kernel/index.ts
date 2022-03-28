@@ -54,6 +54,7 @@ class WidgetManagerComponent {
             timedout: data.timedout,
             error: JSON.stringify(data.error)
         });
+        console.error(`Failed to to Widget load class ${data.moduleName}${data.className}`, data);
     }
 
     private handleUnsupportedWidgetVersion(data: { moduleName: 'qgrid'; moduleVersion: string }) {
