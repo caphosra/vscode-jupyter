@@ -63,7 +63,7 @@ suite.only('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
         api = await initialize();
         if (IS_CI_SERVER) {
             await workspace
-                .getConfiguration('jupyter')
+                .getConfiguration('jupyter', undefined)
                 .update('widgetScriptSources', ['jsdelivr.com', 'unpkg.com'], ConfigurationTarget.Global);
         }
         await workAroundVSCodeNotebookStartPages();
