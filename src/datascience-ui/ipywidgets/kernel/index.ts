@@ -67,7 +67,7 @@ class WidgetManagerComponent {
             cdnsUsed: this.widgetsCanLoadFromCDN,
             isOnline: data.isOnline,
             timedout: data.timedout,
-            error: data.error
+            error: [JSON.stringify(data.error), data.error.toString(), data.error.stack || '']
         });
     }
 
