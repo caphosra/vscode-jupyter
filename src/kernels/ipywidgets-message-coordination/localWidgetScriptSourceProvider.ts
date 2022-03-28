@@ -66,7 +66,7 @@ export class LocalWidgetScriptSourceProvider implements IWidgetScriptSourceProvi
 
         const validModules = new Set<string>();
         const validFiles = files.filter((file) => {
-            // Should be of the form `<widget module>/index.js`
+            // Would be of the form `<widget module>/index.js`
             const parts = file.split('/'); // On windows this uses the unix separator too.
             if (parts.length !== 2) {
                 traceError('Incorrect file found when searching for nnbextension entrypoints');
@@ -80,8 +80,9 @@ export class LocalWidgetScriptSourceProvider implements IWidgetScriptSourceProvi
         // The dependencies are specified in the extension.js file of other directories.
         // E.g. widget a would be in folder nbextensions/widgetA/index.js & index.js would have code such as `define(['widgetB'], function(widgetB) {});`
         // Jupyter lab/notebooks loads all such widgets, we too should try to load them all.
+        const extensions = new Set<string>();
         extensionFiles.forEach((file) => {
-            // Should be of the form `<widget module>/index.js`
+            // Would be of the form `<widget module>/extension.js`
             const parts = file.split('/'); // On windows this uses the unix separator too.
             const moduleName = parts[0];
             if (validModules.has(moduleName)) {
@@ -91,21 +92,42 @@ export class LocalWidgetScriptSourceProvider implements IWidgetScriptSourceProvi
             if (parts.length !== 2) {
                 return;
             }
+            // if (moduleName === 'jupyter-js-widgets') {
+            //     return;
+            // }
+            extensions.add(file);
             validFiles.push(file);
         });
 
-        const mappedFiles = validFiles.map(async (file) => {
-            // Should be of the form `<widget module>/index.js`
-            const parts = file.split('/');
-            const moduleName = parts[0];
+        const mappedFiles: WidgetScriptSource[] = [];
+        await Promise.all(
+            validFiles.map(async (file) => {
+                // Would be of the form `<widget module>/index.js`
+                const parts = file.split('/');
+                const moduleName = parts[0];
 
-            const fileUri = Uri.file(path.join(nbextensionsPath, file));
-            const scriptUri = (await this.localResourceUriConverter.asWebviewUri(fileUri)).toString();
-            // eslint-disable-next-line
-            const widgetScriptSource: WidgetScriptSource = { moduleName, scriptUri, source: 'local' };
-            return widgetScriptSource;
-        });
-        return Promise.all(mappedFiles);
+                const fileUri = Uri.file(path.join(nbextensionsPath, file));
+                const scriptUri = (await this.localResourceUriConverter.asWebviewUri(fileUri)).toString();
+                // eslint-disable-next-line
+                mappedFiles.push({ moduleName, scriptUri, source: 'local' });
+
+                // If this is an extension, then register in a format that Jupyter expects it.
+                // Jupyter can sometimes expect `nbextensions/<widget module>/extension`.
+                if (extensions.has(file)) {
+                    mappedFiles.push({
+                        moduleName: `nbextensions/${moduleName}/extension`,
+                        scriptUri,
+                        source: 'local'
+                    });
+                    mappedFiles.push({
+                        moduleName: `${moduleName}/extension`,
+                        scriptUri,
+                        source: 'local'
+                    });
+                }
+            })
+        );
+        return mappedFiles;
     }
     private async getSysPrefixOfKernel() {
         const kernelConnectionMetadata = this.kernel.kernelConnectionMetadata;
