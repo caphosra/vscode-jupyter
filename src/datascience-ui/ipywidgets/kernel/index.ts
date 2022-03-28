@@ -45,6 +45,7 @@ class WidgetManagerComponent {
         timedout?: boolean;
         isOnline: boolean;
     }) {
+        console.error(`Failed to to Widget load class ${data.moduleName}${data.className}`, data);
         this.postOffice.sendMessage<IInteractiveWindowMapping>(InteractiveWindowMessages.IPyWidgetLoadFailure, {
             className: data.className,
             moduleName: data.moduleName,
@@ -54,7 +55,6 @@ class WidgetManagerComponent {
             timedout: data.timedout,
             error: data.error
         });
-        console.error(`Failed to to Widget load class ${data.moduleName}${data.className}`, data);
     }
 
     private handleUnsupportedWidgetVersion(data: { moduleName: 'qgrid'; moduleVersion: string }) {

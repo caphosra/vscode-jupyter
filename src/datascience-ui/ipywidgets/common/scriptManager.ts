@@ -161,11 +161,14 @@ export class ScriptManager extends EventEmitter {
                                 moduleVersion: info.moduleVersion
                             })
                     );
+                    console.log(`Widget Script not loaded from Extension for ${moduleName}, ${moduleVersion}`);
+                } else {
+                    console.log(`Widget Script successfully loaded from Extension for ${moduleName}, ${moduleVersion}`);
                 }
             })
             .catch((ex) =>
                 // eslint-disable-next-line no-console
-                console.error(`Failed to load Widget Script from Extension for for ${moduleName}, ${moduleVersion}`, ex)
+                console.error(`Failed to load Widget Script from Extension for ${moduleName}, ${moduleVersion}`, ex)
             );
     }
 
