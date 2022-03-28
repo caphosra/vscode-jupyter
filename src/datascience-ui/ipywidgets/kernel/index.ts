@@ -45,7 +45,19 @@ class WidgetManagerComponent {
         timedout?: boolean;
         isOnline: boolean;
     }) {
-        console.error(`Failed to to Widget load class ${data.moduleName}${data.className}`, data);
+        try {
+            console.error(`Failed to to Widget load class with error ${data.moduleName}${data.className}`, data.error);
+            console.error(
+                `Failed to to Widget load class with error ${data.moduleName}${data.className}`,
+                JSON.stringify(data)
+            );
+        } catch (ex) {
+            console.error(
+                `Failed to to Widget load class & failed to log the error ${data.moduleName}${data.className}`,
+                ex
+            );
+        }
+
         this.postOffice.sendMessage<IInteractiveWindowMapping>(InteractiveWindowMessages.IPyWidgetLoadFailure, {
             className: data.className,
             moduleName: data.moduleName,
