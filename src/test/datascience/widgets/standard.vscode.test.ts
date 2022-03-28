@@ -29,7 +29,6 @@ import {
 } from '../notebook/helper';
 import { initializeWidgetComms, Utils } from './commUtils';
 import { WidgetRenderingTimeoutForTests } from './constants';
-import { IS_CI_SERVER } from '../../ciConstants';
 
 /* eslint-disable @typescript-eslint/no-explicit-any, no-invalid-this */
 suite.only('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
@@ -57,14 +56,16 @@ suite.only('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
     );
 
     this.timeout(120_000);
+    let previousWidgetScriptSourcesSettingValue: string[] | undefined = undefined
+    const widgetScriptSourcesValue = ['jsdelivr.com', 'unpkg.com'];
     suiteSetup(async function () {
         traceInfo('Suite Setup VS Code Notebook - Execution');
         this.timeout(120_000);
         api = await initialize();
-        if (IS_CI_SERVER) {
-            await workspace
-                .getConfiguration('jupyter', undefined)
-                .update('widgetScriptSources', ['jsdelivr.com', 'unpkg.com'], ConfigurationTarget.Global);
+        const config = workspace.getConfiguration('jupyter', undefined);
+        previousWidgetScriptSourcesSettingValue = config.get('widgetScriptSources') as string[];
+        if (!Array.isArray(previousWidgetScriptSourcesSettingValue) || previousWidgetScriptSourcesSettingValue.join('') !== widgetScriptSourcesValue.join('')){
+            await config.update('widgetScriptSources', widgetScriptSourcesValue, ConfigurationTarget.Global);
         }
         await workAroundVSCodeNotebookStartPages();
         await startJupyterServer();
@@ -90,7 +91,13 @@ suite.only('Standard IPyWidget (Execution) (slow) (WIDGET_TEST)', function () {
         await closeNotebooksAndCleanUpAfterTests(disposables);
         traceInfo(`Ended Test (completed) ${this.currentTest?.title}`);
     });
-    suiteTeardown(() => closeNotebooksAndCleanUpAfterTests(disposables));
+    suiteTeardown(async () => {
+        const config = workspace.getConfiguration('jupyter', undefined);
+        if (!Array.isArray(previousWidgetScriptSourcesSettingValue) || previousWidgetScriptSourcesSettingValue.join('') !== widgetScriptSourcesValue.join('')){
+            await config.update('widgetScriptSources', previousWidgetScriptSourcesSettingValue, ConfigurationTarget.Global);
+        }
+        await closeNotebooksAndCleanUpAfterTests(disposables);
+    });
     async function initializeNotebook(options: { templateFile: string } | { notebookFile: string }) {
         const nbUri =
             'templateFile' in options
