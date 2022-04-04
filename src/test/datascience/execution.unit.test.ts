@@ -11,7 +11,7 @@ import { anything, instance, match, mock, reset, when } from 'ts-mockito';
 import { Matcher } from 'ts-mockito/lib/matcher/type/Matcher';
 import * as TypeMoq from 'typemoq';
 import * as uuid from 'uuid/v4';
-import { CancellationTokenSource, ConfigurationChangeEvent, Disposable, EventEmitter, ExtensionMode } from 'vscode';
+import { CancellationTokenSource, ConfigurationChangeEvent, Disposable, EventEmitter } from 'vscode';
 import { ApplicationShell } from '../../platform/common/application/applicationShell.node';
 import { IApplicationShell, IWorkspaceService } from '../../platform/common/application/types';
 import { WorkspaceService } from '../../platform/common/application/workspace';
@@ -34,7 +34,6 @@ import {
 import {
     IAsyncDisposableRegistry,
     IConfigurationService,
-    IExtensionContext,
     IOutputChannel,
     IPathUtils
 } from '../../platform/common/types';
@@ -984,14 +983,11 @@ suite('Jupyter Execution', async () => {
         when(serviceContainer.get<IJupyterSubCommandExecutionService>(IJupyterSubCommandExecutionService)).thenReturn(
             jupyterCmdExecutionService
         );
-        const context = mock<IExtensionContext>();
-        when(context.extensionMode).thenReturn(ExtensionMode.Production);
         notebookStarter = new NotebookStarter(
             jupyterCmdExecutionService,
             instance(fileSystem),
             instance(serviceContainer),
-            instance(jupyterOutputChannel),
-            instance(context)
+            instance(jupyterOutputChannel)
         );
         const kernelFinder = mock(LocalKernelFinder);
         const kernelSpec: IJupyterKernelSpec = {

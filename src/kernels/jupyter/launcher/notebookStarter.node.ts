@@ -9,13 +9,13 @@ import { inject, injectable, named } from 'inversify';
 import * as os from 'os';
 import * as path from 'path';
 import * as uuid from 'uuid/v4';
-import { CancellationError, CancellationToken, Disposable, ExtensionMode } from 'vscode';
+import { CancellationError, CancellationToken, Disposable } from 'vscode';
 import { IDisposable } from '@fluentui/react';
 import { Cancellation, createPromiseFromCancellation } from '../../../platform/common/cancellation.node';
 import { disposeAllDisposables } from '../../../platform/common/helpers.node';
 import { traceInfo, traceError } from '../../../platform/logging';
 import { TemporaryDirectory } from '../../../platform/common/platform/types';
-import { IExtensionContext, IOutputChannel, Resource } from '../../../platform/common/types';
+import { IOutputChannel, Resource } from '../../../platform/common/types';
 import { DataScience } from '../../../platform/common/utils/localize';
 import { StopWatch } from '../../../platform/common/utils/stopWatch';
 import { JupyterConnectError } from '../../../platform/errors/jupyterConnectError';
@@ -53,8 +53,7 @@ export class NotebookStarter implements Disposable {
         @inject(IServiceContainer) private readonly serviceContainer: IServiceContainer,
         @inject(IOutputChannel)
         @named(JUPYTER_OUTPUT_CHANNEL)
-        private readonly jupyterOutputChannel: IOutputChannel,
-        @inject(IExtensionContext) private readonly context: IExtensionContext
+        private readonly jupyterOutputChannel: IOutputChannel
     ) {}
     public dispose() {
         while (this.disposables.length > 0) {
@@ -199,13 +198,6 @@ export class NotebookStarter implements Disposable {
         const promisedArgs: Promise<string>[] = [];
         promisedArgs.push(Promise.resolve('--no-browser'));
         promisedArgs.push(Promise.resolve(this.getNotebookDirArgument(workingDirectory)));
-        if (this.context.extensionMode === ExtensionMode.Test) {
-            // When kernels fail to start, Jupyter will attempt to restart 5 times,
-            // & this is very slow (we dont want users to wait because of kernel failures).
-            // Also when kernels die, we don't restart automatically with raw kernels,
-            // We should'nt do the same with jupyter (else startup code will not run).
-            promisedArgs.push(Promise.resolve('--KernelManager.autorestart=False'));
-        }
         if (useDefaultConfig) {
             promisedArgs.push(this.getConfigArgument(tempDirPromise));
         }
