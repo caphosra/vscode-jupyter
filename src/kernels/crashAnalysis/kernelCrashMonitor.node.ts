@@ -64,9 +64,9 @@ export class KernelCrashMonitor implements IExtensionSyncActivationService {
         // If this kernel is still active & we're using Jupyter kernels,
         // and the session is auto resarting, then this means the kernel died.
         // notify the user of this
-        if (kernel?.session.kind !== 'localRaw' && kernel.status === 'autorestarting') {
+        if (kernel.session.kind !== 'localRaw' && kernel.status === 'autorestarting') {
             void this.applicationShell.showErrorMessage(
-                DataScience.kernelDiedWithoutError().format(
+                DataScience.kernelDiedWithoutErrorAndAutoRestarting().format(
                     getDisplayNameOrNameOfKernelConnection(kernel.kernelConnectionMetadata)
                 )
             );
@@ -80,8 +80,6 @@ export class KernelCrashMonitor implements IExtensionSyncActivationService {
                     false
                 );
             }
-            // TODO: Ideally we should kill this kernel and re-start this ourselves.
-            // Thats so that our kernel startup code is executed (else none of the startup code will run in this case).
         }
     }
 }
