@@ -28,7 +28,8 @@ import {
     waitForKernelToGetAutoSelected,
     deleteCell,
     defaultNotebookTestTimeout,
-    waitForExecutionCompletedWithoutChangesToExecutionCount
+    waitForExecutionCompletedWithoutChangesToExecutionCount,
+    getCellOutputs
 } from './helper';
 import { EXTENSION_ROOT_DIR_FOR_TESTS, IS_NON_RAW_NATIVE_TEST, IS_REMOTE_NATIVE_TEST } from '../../constants';
 import * as dedent from 'dedent';
@@ -54,7 +55,7 @@ suite('DataScience - VSCode Notebook Kernel Error Handling - (Execution) (slow)'
     let vscodeNotebook: IVSCodeNotebook;
     let kernelProvider: IKernelProvider;
     let config: IConfigurationService;
-
+    const kernelCrashFailureMessageInCell = 'The Kernel crashed while executing code in the the current cell or a previous cell. Please review the code in the cell(s) to identify a possible cause of the failure';
     this.timeout(120_000);
     suiteSetup(async function () {
         traceInfo('Suite Setup');
@@ -135,6 +136,16 @@ suite('DataScience - VSCode Notebook Kernel Error Handling - (Execution) (slow)'
                 Promise.all([restartingEventFired, autoRestartingEventFired]),
                 sleep(10_000).then(() => Promise.reject(new Error('Did not fail')))
             ]);
+
+            // Verify we have output in the cell to indicate the cell crashed.
+            await waitForCondition(
+                async () => {
+                    const output = getCellOutputs(cell2);
+                    return output.includes(kernelCrashFailureMessageInCell);
+                },
+                defaultNotebookTestTimeout,
+                () => `Cell did not have kernel crash output, the output is = ${getCellOutputs(cell2)}`
+            );
         });
     });
 
@@ -183,6 +194,16 @@ suite('DataScience - VSCode Notebook Kernel Error Handling - (Execution) (slow)'
                 sleep(10_000).then(() => Promise.reject(new Error('Did not fail')))
             ]);
             prompt.dispose();
+
+            // Verify we have output in the cell to indicate the cell crashed.
+            await waitForCondition(
+                async () => {
+                    const output = getCellOutputs(cell2);
+                    return output.includes(kernelCrashFailureMessageInCell);
+                },
+                defaultNotebookTestTimeout,
+                () => `Cell did not have kernel crash output, the output is = ${getCellOutputs(cell2)}`
+            );
         }
         test('Ensure we get an error message & a status of terminating & dead when kernel dies while executing a cell', async function () {
             await runAndFailWithKernelCrash();

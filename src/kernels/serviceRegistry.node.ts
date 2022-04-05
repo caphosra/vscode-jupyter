@@ -278,7 +278,10 @@ export function registerTypes(serviceManager: IServiceManager, _isDevMode: boole
     serviceManager.addSingleton<INotebookProvider>(INotebookProvider, NotebookProvider);
     serviceManager.addSingleton<IExtensionSingleActivationService>(IExtensionSingleActivationService, ServerPreload);
     serviceManager.addSingleton<IExtensionSyncActivationService>(IExtensionSyncActivationService, KernelCrashMonitor);
-    serviceManager.addSingleton<IExtensionSyncActivationService>(IExtensionSyncActivationService, KernelAutoRestartMonitor);
+    serviceManager.addSingleton<IExtensionSyncActivationService>(
+        IExtensionSyncActivationService,
+        KernelAutoRestartMonitor
+    );
 
     // Subdirectories
     registerInstallerTypes(serviceManager);
