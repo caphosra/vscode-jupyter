@@ -105,7 +105,7 @@ import { IKernelDependencyService, INotebookProvider } from './types';
 import { IJupyterVariables, IKernelVariableRequester } from './variables/types';
 import { IJupyterCommandFactory, IJupyterSubCommandExecutionService } from './jupyter/types.node';
 import { KernelCrashMonitor } from './crashAnalysis/kernelCrashMonitor.node';
-import { KernelAutoRestartMonitor } from './kernelAutoRestartMonitor';
+import { KernelAutoRestartMonitor } from './kernelAutoRestartMonitor.node';
 
 export function registerTypes(serviceManager: IServiceManager, _isDevMode: boolean) {
     serviceManager.addSingleton<IRawNotebookSupportedService>(
