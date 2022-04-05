@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-'use strict';
 import type { KernelMessage } from '@jupyterlab/services';
 import { inject, injectable } from 'inversify';
 import { IExtensionSyncActivationService } from '../platform/activation/types';
 import { IDisposable, IDisposableRegistry } from '../platform/common/types';
 import { DataScience } from '../platform/common/utils/localize';
 import { IStatusProvider } from '../platform/progress/types';
+import { getDisplayNameOrNameOfKernelConnection } from './helpers.node';
 import { IKernel, IKernelProvider } from './types';
 
 /**
@@ -48,13 +48,16 @@ export class KernelAutoRestartMonitor implements IExtensionSyncActivationService
         if (!this.kernelsStartedSuccessfully.has(kernel) || !kernel.session || kernel.session.kind === 'localRaw') {
             return;
         }
-
         // If this is a Jupyter kernel (non-raw or remote jupyter), & kernel is restarting
         // then display a progress message indicating its restarting.
         // The user needs to know that its automatically restarting (they didn't explicitly restart the kernel).
         if (kernel.status === 'autorestarting') {
             // Set our status
-            const status = this.statusProvider.set(DataScience.restartingKernelStatus().format(''));
+            const status = this.statusProvider.set(
+                DataScience.restartingKernelStatus().format(
+                    getDisplayNameOrNameOfKernelConnection(kernel.kernelConnectionMetadata)
+                )
+            );
             this.kernelRestartProgress.set(kernel, status);
         } else if (kernel.status !== 'starting' && kernel.status !== 'busy' && kernel.status !== 'unknown') {
             if (this.kernelRestartProgress.has(kernel)) {
